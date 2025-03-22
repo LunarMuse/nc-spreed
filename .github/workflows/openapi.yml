@@ -35,7 +35,7 @@ jobs:
         uses: icewind1991/nextcloud-version-matrix@58becf3b4bb6dc6cef677b15e2fd8e7d48c0908f # v1.3.1
 
       - name: Set up php
-        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # v2.32.0
         with:
           php-version: ${{ steps.php_versions.outputs.php-available }}
           extensions: xml
@@ -62,7 +62,7 @@ jobs:
 
       - name: Set up node ${{ steps.node_versions.outputs.nodeVersion }}
         if: ${{ steps.node_versions.outputs.nodeVersion }}
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: ${{ steps.node_versions.outputs.nodeVersion }}
 
