@@ -7,7 +7,7 @@
 	<div ref="gridWrapper" class="grid-main-wrapper" :class="{ 'is-grid': !isStripe, transparent: isLessThanTwoVideos }">
 		<NcButton v-if="isStripe && !isRecording"
 			class="stripe--collapse"
-			type="tertiary-no-background"
+			variant="tertiary-no-background"
 			:title="stripeButtonTitle"
 			:aria-label="stripeButtonTitle"
 			@click="handleClickStripeCollapse">
@@ -24,7 +24,7 @@
 			<div v-if="!isStripe || stripeOpen" class="wrapper" :style="wrapperStyle">
 				<div :class="[isStripe ? 'stripe-wrapper' : 'grid-wrapper']">
 					<NcButton v-if="hasPreviousPage && gridWidth > 0"
-						type="tertiary-no-background"
+						variant="tertiary-no-background"
 						class="grid-navigation grid-navigation__previous"
 						:aria-label="t('spreed', 'Previous page of videos')"
 						@click="handleClickPrevious">
@@ -86,7 +86,7 @@
 							@click-video="handleClickLocalVideo" />
 					</div>
 					<NcButton v-if="hasNextPage && gridWidth > 0"
-						type="tertiary-no-background"
+						variant="tertiary-no-background"
 						class="grid-navigation grid-navigation__next"
 						:aria-label="t('spreed', 'Next page of videos')"
 						@click="handleClickNext">
@@ -108,7 +108,7 @@
 					@click-video="handleClickLocalVideo" />
 
 				<template v-if="devMode">
-					<NcButton type="tertiary"
+					<NcButton variant="tertiary"
 						class="dev-mode__toggle"
 						aria-label="Toggle screenshot mode"
 						@click="screenshotMode = !screenshotMode">
@@ -164,6 +164,7 @@ import LocalVideo from '../shared/LocalVideo.vue'
 import VideoBottomBar from '../shared/VideoBottomBar.vue'
 import VideoVue from '../shared/VideoVue.vue'
 import { ATTENDEE, PARTICIPANT } from '../../../constants.ts'
+import { useActorStore } from '../../../stores/actor.ts'
 import { useCallViewStore } from '../../../stores/callView.ts'
 import { placeholderImage, placeholderModel, placeholderName, placeholderSharedData } from './gridPlaceholders.ts'
 
@@ -269,6 +270,7 @@ export default {
 			videosCap,
 			videosCapEnforced,
 			callViewStore: useCallViewStore(),
+			actorStore: useActorStore(),
 		}
 	},
 
@@ -502,7 +504,7 @@ export default {
 		},
 
 		isGuestNonModerator() {
-			return this.$store.getters.getActorType() === ATTENDEE.ACTOR_TYPE.GUESTS
+			return this.actorStore.isActorGuest
 				&& this.$store.getters.conversation(this.token).participantType !== PARTICIPANT.TYPE.GUEST_MODERATOR
 		},
 

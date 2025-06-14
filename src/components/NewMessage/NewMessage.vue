@@ -41,11 +41,11 @@
 
 				<div class="new-message-form__emoji-picker">
 					<NcEmojiPicker v-if="!disabled"
-						:close-on-select="false"
+						keep-open
 						:set-return-focus="getContenteditable"
 						@select="addEmoji">
 						<NcButton :disabled="disabled"
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('spreed', 'Add emoji')"
 							:aria-haspopup="true">
 							<template #icon>
@@ -55,7 +55,7 @@
 					</NcEmojiPicker>
 					<!-- Disabled emoji picker placeholder button -->
 					<NcButton v-else
-						type="tertiary"
+						variant="tertiary"
 						:aria-label="t('spreed', 'Add emoji')"
 						:disabled="true">
 						<template #icon>
@@ -118,8 +118,8 @@
 
 			<!-- Edit -->
 			<template v-else-if="messageToEdit">
-				<NcButton type="tertiary"
-					native-type="submit"
+				<NcButton variant="tertiary"
+					type="submit"
 					:title="t('spreed', 'Cancel editing')"
 					:aria-label="t('spreed', 'Cancel editing')"
 					@click="handleAbortEdit">
@@ -128,8 +128,8 @@
 					</template>
 				</NcButton>
 				<NcButton :disabled="disabledEdit"
-					type="tertiary"
-					native-type="submit"
+					variant="tertiary"
+					type="submit"
 					:title="t('spreed', 'Edit message')"
 					:aria-label="t('spreed', 'Edit message')"
 					@click="handleEdit">
@@ -142,8 +142,8 @@
 			<!-- Send buttons -->
 			<template v-else>
 				<NcButton :disabled="disabled"
-					type="tertiary"
-					native-type="submit"
+					variant="tertiary"
+					type="submit"
 					:title="sendMessageLabel"
 					:aria-label="sendMessageLabel"
 					@click="handleSubmit">
@@ -200,6 +200,7 @@ import BrowserStorage from '../../services/BrowserStorage.js'
 import { getTalkConfig, hasTalkFeature } from '../../services/CapabilitiesManager.ts'
 import { EventBus } from '../../services/EventBus.ts'
 import { shareFile } from '../../services/filesSharingServices.ts'
+import { useActorStore } from '../../stores/actor.ts'
 import { useChatExtrasStore } from '../../stores/chatExtras.js'
 import { useGroupwareStore } from '../../stores/groupware.ts'
 import { useSettingsStore } from '../../stores/settings.js'
@@ -295,6 +296,7 @@ export default {
 		const { autoComplete, userData } = useChatMentions(token)
 		const { createTemporaryMessage } = useTemporaryMessage()
 		return {
+			actorStore: useActorStore(),
 			chatExtrasStore: useChatExtrasStore(),
 			groupwareStore: useGroupwareStore(),
 			settingsStore: useSettingsStore(),
@@ -377,12 +379,8 @@ export default {
 			return messageToEditId && this.$store.getters.message(this.token, messageToEditId)
 		},
 
-		currentUserIsGuest() {
-			return this.$store.getters.getUserId() === null
-		},
-
 		canShareFiles() {
-			return !this.currentUserIsGuest
+			return !this.actorStore.isActorGuest
 				&& !this.conversation.remoteServer // no attachments support in federated conversations
 		},
 
@@ -449,7 +447,7 @@ export default {
 			return [{
 				label: t('spreed', 'Choose'),
 				callback: (nodes) => this.handleFileShare(nodes),
-				type: 'primary',
+				variant: 'primary',
 			}]
 		},
 
@@ -893,8 +891,7 @@ export default {
 
 			// last message within 24 hours
 			const lastMessageByCurrentUser = this.$store.getters.messagesList(this.token).findLast((message) => {
-				return message.actorId === this.$store.getters.getUserId()
-					&& message.actorType === this.$store.getters.getActorType()
+				return this.actorStore.checkIfSelfIsActor(message)
 					&& !message.isTemporary && !message.systemMessage
 					&& (Date.now() - message.timestamp * 1000 < ONE_DAY_IN_MS)
 			})

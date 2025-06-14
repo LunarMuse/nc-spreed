@@ -26,7 +26,7 @@
 						:limit="limit(type)"
 						:items="sharedItems[type]" />
 					<NcButton v-if="hasMore(type, sharedItems[type])"
-						type="tertiary-no-background"
+						variant="tertiary-no-background"
 						class="more"
 						wide
 						@click="showMore(type)">
@@ -90,6 +90,7 @@ import SharedItemsBrowser from './SharedItemsBrowser.vue'
 import { CONVERSATION } from '../../../constants.ts'
 import { hasTalkFeature } from '../../../services/CapabilitiesManager.ts'
 import { EventBus } from '../../../services/EventBus.ts'
+import { useActorStore } from '../../../stores/actor.ts'
 import { useSharedItemsStore } from '../../../stores/sharedItems.js'
 import { useSidebarStore } from '../../../stores/sidebar.ts'
 import {
@@ -126,6 +127,7 @@ export default {
 
 	setup() {
 		return {
+			actorStore: useActorStore(),
 			sharedItemsStore: useSharedItemsStore(),
 			sidebarStore: useSidebarStore(),
 			sharedItemButtonTitle,
@@ -146,7 +148,7 @@ export default {
 
 	computed: {
 		getUserId() {
-			return this.$store.getters.getUserId()
+			return this.actorStore.userId
 		},
 
 		token() {
@@ -210,7 +212,7 @@ export default {
 		},
 
 		openPollDraftHandler() {
-			EventBus.emit('poll-drafts-open', {})
+			EventBus.emit('poll-drafts-open', { token: this.token })
 		},
 	},
 }

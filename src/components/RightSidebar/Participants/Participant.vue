@@ -49,7 +49,7 @@
 			<!-- Phone participant dial action -->
 			<template v-if="isInCall && canBeModerated && isPhoneActor">
 				<NcButton v-if="!participant.inCall"
-					type="success"
+					variant="success"
 					:aria-label="t('spreed', 'Dial out phone')"
 					:title="t('spreed', 'Dial out phone')"
 					:disabled="disabled"
@@ -59,7 +59,7 @@
 					</template>
 				</NcButton>
 				<template v-else>
-					<NcButton type="error"
+					<NcButton variant="error"
 						:aria-label="t('spreed', 'Hang up phone')"
 						:title="t('spreed', 'Hang up phone')"
 						:disabled="disabled"
@@ -85,7 +85,7 @@
 			<!-- Grant or revoke lobby permissions (inline button) -->
 			<template v-if="showToggleLobbyAction">
 				<NcButton v-if="canSkipLobby"
-					type="tertiary"
+					variant="tertiary"
 					:title="t('spreed', 'Move back to lobby')"
 					:aria-label="t('spreed', 'Move back to lobby')"
 					@click="setLobbyPermission(false)">
@@ -94,7 +94,7 @@
 					</template>
 				</NcButton>
 				<NcButton v-else
-					type="tertiary"
+					variant="tertiary"
 					:title="t('spreed', 'Move to conversation')"
 					:aria-label="t('spreed', 'Move to conversation')"
 					@click="setLobbyPermission(true)">
@@ -295,10 +295,10 @@
 					</template>
 				</template>
 				<template #actions>
-					<NcButton type="tertiary" :disabled="isLoading" @click="isRemoveDialogOpen = false">
+					<NcButton variant="tertiary" :disabled="isLoading" @click="isRemoveDialogOpen = false">
 						{{ t('spreed', 'Dismiss') }}
 					</NcButton>
-					<NcButton type="error" :disabled="isLoading || !!maxLengthWarning" @click="removeParticipant">
+					<NcButton variant="error" :disabled="isLoading || !!maxLengthWarning" @click="removeParticipant">
 						{{ t('spreed', 'Remove') }}
 					</NcButton>
 				</template>
@@ -354,6 +354,7 @@ import {
 	callSIPUnmutePhone,
 } from '../../../services/callsService.js'
 import { hasTalkFeature } from '../../../services/CapabilitiesManager.ts'
+import { useActorStore } from '../../../stores/actor.ts'
 import { formattedTime } from '../../../utils/formattedTime.ts'
 import { getDisplayNameWithFallback } from '../../../utils/getDisplayName.ts'
 import { readableNumber } from '../../../utils/readableNumber.ts'
@@ -417,6 +418,7 @@ export default {
 	setup() {
 		return {
 			isInCall: useIsInCall(),
+			actorStore: useActorStore(),
 		}
 	},
 
@@ -609,7 +611,7 @@ export default {
 			return this.$store.getters.conversation(this.token) || {
 				sessionId: '0',
 				participantFlags: 0,
-				participantType: this.$store.getters.getUserId() !== null ? PARTICIPANT.TYPE.USER : PARTICIPANT.TYPE.GUEST,
+				participantType: this.actorStore.isLoggedIn ? PARTICIPANT.TYPE.USER : PARTICIPANT.TYPE.GUEST,
 			}
 		},
 
@@ -625,7 +627,7 @@ export default {
 		},
 
 		isSelf() {
-			return this.participant.actorType === this.$store.getters.getActorType() && this.participant.actorId === this.$store.getters.getActorId()
+			return this.actorStore.checkIfSelfIsActor(this.participant)
 		},
 
 		selfIsModerator() {
@@ -904,7 +906,7 @@ export default {
 					console.info('Joining call')
 					await this.$store.dispatch('joinCall', {
 						token: this.token,
-						participantIdentifier: this.$store.getters.getParticipantIdentifier(),
+						participantIdentifier: this.actorStore.participantIdentifier,
 						flags,
 						silent: false,
 						recordingConsent: true,

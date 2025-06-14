@@ -8,7 +8,8 @@
 		<div class="avatar__container">
 			<div v-if="!showCropper" class="avatar__preview">
 				<div v-if="emojiAvatar"
-					:class="['avatar__preview-emoji', themeClass]"
+					class="avatar__preview-emoji"
+					:class="themeClass"
 					:style="{ 'background-color': backgroundColor }">
 					{{ emojiAvatar }}
 				</div>
@@ -86,7 +87,7 @@
 						{{ t('spreed', 'Cancel') }}
 					</NcButton>
 					<NcButton v-if="!controlled"
-						type="primary"
+						variant="primary"
 						@click="saveAvatar">
 						{{ t('spreed', 'Set picture') }}
 					</NcButton>
@@ -222,7 +223,7 @@ export default {
 			return [{
 				label: t('spreed', 'Choose'),
 				callback: (nodes) => this.handleFileChoose(nodes),
-				type: 'primary',
+				variant: 'primary',
 			}]
 		},
 	},

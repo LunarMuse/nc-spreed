@@ -8,7 +8,7 @@
 	<div v-click-outside="handleClickOutside">
 		<template v-if="!isReactionsMenuOpen">
 			<NcButton v-if="canReact"
-				type="tertiary"
+				variant="tertiary"
 				:aria-label="t('spreed', 'Add a reaction to this message')"
 				:title="t('spreed', 'Add a reaction to this message')"
 				@click="openReactionsMenu">
@@ -17,7 +17,7 @@
 				</template>
 			</NcButton>
 			<NcButton v-if="canReply"
-				type="tertiary"
+				variant="tertiary"
 				:aria-label="t('spreed', 'Reply')"
 				:title="t('spreed', 'Reply')"
 				@click="handleReply">
@@ -226,7 +226,7 @@
 		</template>
 
 		<template v-else>
-			<NcButton type="tertiary"
+			<NcButton variant="tertiary"
 				:aria-label="t('spreed', 'Close reactions menu')"
 				@click="closeReactionsMenu">
 				<template #icon>
@@ -235,7 +235,7 @@
 			</NcButton>
 			<NcButton v-for="emoji in frequentlyUsedEmojis"
 				:key="emoji"
-				type="tertiary"
+				variant="tertiary"
 				:aria-label="t('spreed', 'React with {emoji}', { emoji })"
 				@click="handleReactionClick(emoji)">
 				<template #icon>
@@ -248,7 +248,7 @@
 				@select="handleReactionClick"
 				@after-show="onEmojiPickerOpen"
 				@after-hide="onEmojiPickerClose">
-				<NcButton type="tertiary"
+				<NcButton variant="tertiary"
 					:aria-label="t('spreed', 'React with another emoji')">
 					<template #icon>
 						<Plus :size="20" />
@@ -302,6 +302,7 @@ import { useMessageInfo } from '../../../../../composables/useMessageInfo.js'
 import { ATTENDEE, CONVERSATION, MESSAGE, PARTICIPANT } from '../../../../../constants.ts'
 import { hasTalkFeature } from '../../../../../services/CapabilitiesManager.ts'
 import { getMessageReminder, removeMessageReminder, setMessageReminder } from '../../../../../services/remindersService.js'
+import { useActorStore } from '../../../../../stores/actor.ts'
 import { useIntegrationsStore } from '../../../../../stores/integrations.js'
 import { useReactionsStore } from '../../../../../stores/reactions.js'
 import { generatePublicShareDownloadUrl, generateUserFileUrl } from '../../../../../utils/davUtils.ts'
@@ -406,6 +407,7 @@ export default {
 		const { message } = toRefs(props)
 		const reactionsStore = useReactionsStore()
 		const { messageActions } = useIntegrationsStore()
+		const actorStore = useActorStore()
 		const {
 			isEditable,
 			isDeleteable,
@@ -430,6 +432,7 @@ export default {
 			isDeleteable,
 			isConversationReadOnly,
 			isConversationModifiable,
+			actorStore,
 		}
 	},
 
@@ -457,7 +460,7 @@ export default {
 					|| this.conversation.type === CONVERSATION.TYPE.GROUP)
 				&& !this.isCurrentUserOwnMessage
 				&& this.message.actorType === ATTENDEE.ACTOR_TYPE.USERS
-				&& this.$store.getters.isActorUser()
+				&& !this.isCurrentGuest
 		},
 
 		messageFile() {
@@ -472,7 +475,7 @@ export default {
 		},
 
 		isCurrentGuest() {
-			return this.$store.getters.isActorGuest()
+			return this.actorStore.isActorGuest
 		},
 
 		isDeletedMessage() {

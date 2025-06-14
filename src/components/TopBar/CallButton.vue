@@ -10,7 +10,7 @@
 			:title="startCallTitle"
 			:aria-label="startCallLabel"
 			:disabled="startCallButtonDisabled || loading || isJoiningCall"
-			:type="startCallButtonType"
+			:variant="hasCall ? 'success' : 'primary'"
 			@click="handleClick">
 			<template #icon>
 				<NcLoadingIcon v-if="isJoiningCall || loading" :size="20" />
@@ -26,7 +26,7 @@
 		<NcButton v-else-if="showLeaveCallButton && canEndForAll && isPhoneRoom"
 			id="call_button"
 			:aria-label="endCallLabel"
-			type="error"
+			variant="error"
 			:disabled="loading"
 			@click="leaveCall(true)">
 			<template #icon>
@@ -40,7 +40,7 @@
 		<NcButton v-else-if="showLeaveCallButton && !canEndForAll && !isBreakoutRoom"
 			id="call_button"
 			:aria-label="leaveCallLabel"
-			:type="isScreensharing ? 'tertiary' : 'error'"
+			:variant="isScreensharing ? 'tertiary' : 'error'"
 			:disabled="loading"
 			@click="leaveCall(false)">
 			<template #icon>
@@ -56,7 +56,7 @@
 			:aria-label="leaveCallCombinedLabel"
 			:menu-name="showButtonText ? leaveCallCombinedLabel : undefined"
 			force-name
-			:type="isScreensharing ? 'tertiary' : 'error'">
+			:variant="isScreensharing ? 'tertiary' : 'error'">
 			<template #icon>
 				<NcLoadingIcon v-if="loading" :size="20" />
 				<IconPhoneHangup v-else-if="!isBreakoutRoom" :size="20" />
@@ -106,6 +106,7 @@ import { ATTENDEE, CALL, CONVERSATION, PARTICIPANT } from '../../constants.ts'
 import { callSIPDialOut } from '../../services/callsService.js'
 import { hasTalkFeature } from '../../services/CapabilitiesManager.ts'
 import { EventBus } from '../../services/EventBus.ts'
+import { useActorStore } from '../../stores/actor.ts'
 import { useBreakoutRoomsStore } from '../../stores/breakoutRooms.ts'
 import { useCallViewStore } from '../../stores/callView.ts'
 import { useSettingsStore } from '../../stores/settings.js'
@@ -189,6 +190,7 @@ export default {
 
 	setup() {
 		return {
+			actorStore: useActorStore(),
 			isInCall: useIsInCall(),
 			breakoutRoomsStore: useBreakoutRoomsStore(),
 			callViewStore: useCallViewStore(),
@@ -310,17 +312,6 @@ export default {
 			return ''
 		},
 
-		startCallButtonType() {
-			if (!this.isInLobby) {
-				if (!this.hasCall) {
-					return 'primary'
-				} else {
-					return 'success'
-				}
-			}
-			return ''
-		},
-
 		showStartCallButton() {
 			return this.callEnabled
 				&& this.conversation.type !== CONVERSATION.TYPE.NOTE_TO_SELF
@@ -395,7 +386,7 @@ export default {
 			})
 			await this.$store.dispatch('joinCall', {
 				token: this.token,
-				participantIdentifier: this.$store.getters.getParticipantIdentifier(),
+				participantIdentifier: this.actorStore.participantIdentifier,
 				flags,
 				silent: this.hasCall ? true : this.silentCall,
 				recordingConsent: this.recordingConsentGiven,
@@ -436,7 +427,7 @@ export default {
 			})
 			await this.$store.dispatch('leaveCall', {
 				token: this.token,
-				participantIdentifier: this.$store.getters.getParticipantIdentifier(),
+				participantIdentifier: this.actorStore.participantIdentifier,
 				all: endMeetingForAll,
 			})
 			this.loading = false

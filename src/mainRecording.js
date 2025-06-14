@@ -4,15 +4,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { getRequestToken } from '@nextcloud/auth'
+import { getCSPNonce } from '@nextcloud/auth'
 import { generateFilePath } from '@nextcloud/router'
-import { createPinia, PiniaVuePlugin } from 'pinia'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
 import Recording from './Recording.vue'
 import router from './router/router.ts'
 import store from './store/index.js'
+import pinia from './stores/pinia.ts'
 import {
 	signalingGetSettingsForRecording,
 	signalingJoinCallForRecording,
@@ -26,7 +26,7 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import 'leaflet-defaulticon-compatibility'
 
 // CSP config for webpack dynamic chunk loading
-__webpack_nonce__ = btoa(getRequestToken())
+__webpack_nonce__ = getCSPNonce()
 
 // Correct the root of the app for chunk loading
 // OC.linkTo matches the apps folders
@@ -37,11 +37,8 @@ __webpack_public_path__ = generateFilePath('spreed', '', 'js/')
 Vue.prototype.OC = OC
 Vue.prototype.OCA = OCA
 
-Vue.use(PiniaVuePlugin)
 Vue.use(Vuex)
 Vue.use(VueRouter)
-
-const pinia = createPinia()
 
 window.store = store
 

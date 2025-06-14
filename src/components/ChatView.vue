@@ -31,7 +31,7 @@
 		<div class="scroll-to-bottom">
 			<TransitionWrapper name="fade">
 				<NcButton v-show="!isChatScrolledToBottom && !isLoadingChat"
-					type="secondary"
+					variant="secondary"
 					:aria-label="t('spreed', 'Scroll to bottom')"
 					:title="t('spreed', 'Scroll to bottom')"
 					class="scroll-to-bottom__button"
@@ -71,6 +71,7 @@ import TransitionWrapper from './UIShared/TransitionWrapper.vue'
 import { CONVERSATION, PARTICIPANT } from '../constants.ts'
 import { getTalkConfig } from '../services/CapabilitiesManager.ts'
 import { EventBus } from '../services/EventBus.ts'
+import { useActorStore } from '../stores/actor.ts'
 import { useChatExtrasStore } from '../stores/chatExtras.js'
 
 export default {
@@ -108,6 +109,7 @@ export default {
 		provide('chatView:isSidebar', props.isSidebar)
 		return {
 			chatExtrasStore: useChatExtrasStore(),
+			actorStore: useActorStore(),
 		}
 	},
 
@@ -120,16 +122,15 @@ export default {
 
 	computed: {
 		isGuest() {
-			return this.$store.getters.isActorGuest()
+			return this.actorStore.isActorGuest
 		},
 
 		isGuestWithoutDisplayName() {
-			const userName = this.$store.getters.getDisplayName()
-			return !userName && this.isGuest
+			return this.isGuest && !this.actorStore.displayName
 		},
 
 		canUploadFiles() {
-			return getTalkConfig(this.token, 'attachments', 'allowed') && this.$store.getters.getUserId()
+			return getTalkConfig(this.token, 'attachments', 'allowed') && this.actorStore.userId
 				&& this.$store.getters.getAttachmentFolderFreeSpace() !== 0
 				&& (this.conversation.permissions & PARTICIPANT.PERMISSIONS.CHAT)
 				&& !this.conversation.remoteServer // no attachments support in federated conversations

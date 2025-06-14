@@ -18,16 +18,16 @@ import { useStore } from '../../composables/useStore.js'
 import { CONVERSATION } from '../../constants.ts'
 import { getTalkConfig, hasTalkFeature } from '../../services/CapabilitiesManager.ts'
 
-const supportsArchive = hasTalkFeature('local', 'archived-conversations-v2')
-const retentionEventPeriod = getTalkConfig('local', 'conversations', 'retention-event')
-const retentionPhonePeriod = getTalkConfig('local', 'conversations', 'retention-phone')
-const retentionInstantMeetingPeriod = getTalkConfig('local', 'conversations', 'retention-instant-meetings')
-
 const props = defineProps<{
 	token: string
 	objectType: string
 	isHighlighted: boolean
 }>()
+
+const supportsArchive = hasTalkFeature('local', 'archived-conversations-v2')
+const retentionEventPeriod = getTalkConfig('local', 'conversations', 'retention-event')
+const retentionPhonePeriod = getTalkConfig('local', 'conversations', 'retention-phone')
+const retentionInstantMeetingPeriod = getTalkConfig('local', 'conversations', 'retention-instant-meetings')
 
 const store = useStore()
 const router = useRouter()
@@ -89,11 +89,11 @@ async function showConfirmationDialog() {
 		buttons: [
 			{
 				label: t('spreed', 'No'),
-				type: 'tertiary',
+				variant: 'tertiary',
 			},
 			{
 				label: t('spreed', 'Yes'),
-				type: 'error',
+				variant: 'error',
 				callback: () => {
 					deleteEventConversation()
 				},
@@ -110,7 +110,7 @@ async function showConfirmationDialog() {
 		<p>{{ descriptionLabel }}</p>
 		<div v-if="isModerator"
 			class="conversation-actions__buttons">
-			<NcButton type="error"
+			<NcButton variant="error"
 				@click="showConfirmationDialog">
 				<template #icon>
 					<IconDelete />
@@ -118,7 +118,7 @@ async function showConfirmationDialog() {
 				{{ t('spreed', 'Delete now') }}
 			</NcButton>
 			<NcButton v-if="supportsArchive"
-				type="secondary"
+				variant="secondary"
 				@click="resetObjectConversation">
 				<template #icon>
 					<IconCheckUnderline />
