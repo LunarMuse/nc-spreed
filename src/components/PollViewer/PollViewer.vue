@@ -62,14 +62,14 @@
 			<div v-if="isPollOpen" class="poll-modal__actions">
 				<!-- Submit vote button-->
 				<NcButton v-if="modalPage === 'voting'"
-					type="primary"
+					variant="primary"
 					:disabled="disabled"
 					@click="submitVote">
 					{{ t('spreed', 'Submit vote') }}
 				</NcButton>
 				<!-- Vote again-->
 				<NcButton v-else
-					type="secondary"
+					variant="secondary"
 					@click="modalPage = 'voting'">
 					{{ t('spreed', 'Change your vote') }}
 				</NcButton>
@@ -137,6 +137,7 @@ import { useIsInCall } from '../../composables/useIsInCall.js'
 import { POLL } from '../../constants.ts'
 import { hasTalkFeature } from '../../services/CapabilitiesManager.ts'
 import { EventBus } from '../../services/EventBus.ts'
+import { useActorStore } from '../../stores/actor.ts'
 import { usePollsStore } from '../../stores/polls.ts'
 import { calculateVotePercentage } from '../../utils/calculateVotePercentage.ts'
 import { convertToJSONDataURI } from '../../utils/fileDownload.ts'
@@ -187,6 +188,7 @@ export default {
 
 		return {
 			isInCall: useIsInCall(),
+			actorStore: useActorStore(),
 			pollsStore,
 			voteToSubmit,
 			modalPage,
@@ -243,8 +245,7 @@ export default {
 
 		selfIsOwnerOrModerator() {
 			return this.isModerator
-				|| (this.poll?.actorType === this.$store.getters.getActorType()
-					&& this.poll?.actorId === this.$store.getters.getActorId())
+				|| (this.poll && this.actorStore.checkIfSelfIsActor(this.poll))
 		},
 
 		pollSummaryText() {

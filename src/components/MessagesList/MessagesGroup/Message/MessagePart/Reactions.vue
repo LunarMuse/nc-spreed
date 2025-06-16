@@ -9,12 +9,12 @@
 		<NcPopover v-for="reaction in reactionsSorted"
 			:key="reaction"
 			:delay="200"
-			:focus-trap="false"
+			no-focus-trap
 			:triggers="['hover']"
 			:popper-triggers="['hover']"
 			@after-show="fetchReactions">
 			<template #trigger>
-				<NcButton :type="userHasReacted(reaction) ? 'primary' : 'secondary'"
+				<NcButton :variant="userHasReacted(reaction) ? 'primary' : 'secondary'"
 					size="small"
 					@click="handleReactionClick(reaction)">
 					<span class="reaction-emoji">{{ reaction }}</span> {{ reactionsCount(reaction) }}
@@ -86,6 +86,7 @@ import EmoticonPlusOutline from 'vue-material-design-icons/EmoticonPlusOutline.v
 import HeartOutlineIcon from 'vue-material-design-icons/HeartOutline.vue'
 import ReactionsList from './ReactionsList.vue'
 import { ATTENDEE } from '../../../../../constants.ts'
+import { useActorStore } from '../../../../../stores/actor.ts'
 import { useGuestNameStore } from '../../../../../stores/guestName.js'
 import { useReactionsStore } from '../../../../../stores/reactions.js'
 import { getDisplayNameWithFallback } from '../../../../../utils/getDisplayName.ts'
@@ -134,11 +135,10 @@ export default {
 	emits: ['emoji-picker-toggled'],
 
 	setup() {
-		const guestNameStore = useGuestNameStore()
-		const reactionsStore = useReactionsStore()
 		return {
-			guestNameStore,
-			reactionsStore,
+			guestNameStore: useGuestNameStore(),
+			reactionsStore: useReactionsStore(),
+			actorStore: useActorStore(),
 		}
 	},
 
@@ -249,8 +249,7 @@ export default {
 			const summary = []
 
 			for (const item in list) {
-				if (list[item].actorType === this.$store.getters.getActorType()
-					&& list[item].actorId === this.$store.getters.getActorId()) {
+				if (this.actorStore.checkIfSelfIsActor(list[item])) {
 					summary.unshift(t('spreed', 'You'))
 				} else {
 					summary.push(this.getDisplayNameForReaction(list[item]))

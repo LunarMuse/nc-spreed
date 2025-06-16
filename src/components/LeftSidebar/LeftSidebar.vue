@@ -9,7 +9,7 @@
 			<div class="new-conversation">
 				<TransitionWrapper name="radial-reveal">
 					<NcButton v-show="searchText === ''"
-						type="tertiary"
+						variant="tertiary"
 						:class="{ 'hidden-visually': isSearching }"
 						class="talk-home-button"
 						:title="t('spreed', 'Talk home')"
@@ -33,7 +33,7 @@
 				<TransitionWrapper name="radial-reveal">
 					<!-- Filters -->
 					<NcActions v-show="searchText === ''"
-						:type="isFiltered ? 'secondary' : 'tertiary'"
+						:variant="isFiltered ? 'secondary' : 'tertiary'"
 						class="filters"
 						:class="{ 'hidden-visually': isSearching }">
 						<template #icon>
@@ -192,7 +192,7 @@
 					@scroll.native="debounceHandleScroll" />
 				<NcButton v-if="!preventFindingUnread && lastUnreadMentionBelowViewportIndex !== null"
 					class="unread-mention-button"
-					type="primary"
+					variant="primary"
 					@click="scrollBottomUnread">
 					{{ t('spreed', 'Unread mentions') }}
 				</NcButton>
@@ -216,7 +216,7 @@
 			<div class="left-sidebar__settings-button-container">
 				<template v-if="!isSearching && supportsArchive">
 					<NcButton v-if="showArchived"
-						type="tertiary"
+						variant="tertiary"
 						wide
 						@click="showArchived = false">
 						<template #icon>
@@ -225,7 +225,7 @@
 						{{ t('spreed', 'Back to conversations') }}
 					</NcButton>
 					<NcButton v-else-if="archivedConversationsList.length"
-						type="tertiary"
+						variant="tertiary"
 						wide
 						@click="showArchived = true">
 						<template #icon>
@@ -238,7 +238,7 @@
 					</NcButton>
 				</template>
 
-				<NcButton type="tertiary" wide @click="showSettings">
+				<NcButton variant="tertiary" wide @click="showSettings">
 					<template #icon>
 						<Cog :size="20" />
 					</template>
@@ -302,6 +302,7 @@ import {
 import { autocompleteQuery } from '../../services/coreService.ts'
 import { EventBus } from '../../services/EventBus.ts'
 import { talkBroadcastChannel } from '../../services/talkBroadcastChannel.js'
+import { useActorStore } from '../../stores/actor.ts'
 import { useFederationStore } from '../../stores/federation.ts'
 import { useSettingsStore } from '../../stores/settings.js'
 import { useTalkHashStore } from '../../stores/talkHash.js'
@@ -393,6 +394,7 @@ export default {
 			showArchived,
 			settingsStore,
 			FILTER_LABELS,
+			actorStore: useActorStore(),
 		}
 	},
 
@@ -680,7 +682,7 @@ export default {
 						acc.push(result.name)
 					}
 					return acc
-				}, [this.$store.getters.getUserId()])
+				}, [this.actorStore.userId])
 
 				this.searchResults = response?.data?.ocs?.data.filter((match) => {
 					return !(match.source === ATTENDEE.ACTOR_TYPE.USERS && oneToOneMap.includes(match.id))

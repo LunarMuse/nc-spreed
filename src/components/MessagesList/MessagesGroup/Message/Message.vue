@@ -57,7 +57,7 @@
 				@delete="handleDelete" />
 			<div v-else-if="showCombinedSystemMessageToggle"
 				class="message-buttons-bar">
-				<NcButton type="tertiary"
+				<NcButton variant="tertiary"
 					:aria-label="t('spreed', 'Show or collapse system messages')"
 					:title="t('spreed', 'Show or collapse system messages')"
 					@click="toggleCombinedSystemMessage">
@@ -122,6 +122,7 @@ import Reactions from './MessagePart/Reactions.vue'
 import { CONVERSATION, MENTION, MESSAGE, PARTICIPANT } from '../../../../constants.ts'
 import { getTalkConfig, hasTalkFeature } from '../../../../services/CapabilitiesManager.ts'
 import { EventBus } from '../../../../services/EventBus.ts'
+import { useActorStore } from '../../../../stores/actor.ts'
 import { useChatExtrasStore } from '../../../../stores/chatExtras.js'
 import { getItemTypeFromMessage } from '../../../../utils/getItemTypeFromMessage.ts'
 
@@ -204,6 +205,7 @@ export default {
 		return {
 			isTranslationAvailable,
 			chatExtrasStore: useChatExtrasStore(),
+			actorStore: useActorStore(),
 		}
 	},
 
@@ -279,8 +281,7 @@ export default {
 			return !this.isSystemMessage
 				&& !this.isTemporary
 				&& !this.isDeleting
-				&& this.message.actorType === this.$store.getters.getActorType()
-				&& this.message.actorId === this.$store.getters.getActorId()
+				&& this.actorStore.checkIfSelfIsActor(this.message)
 				&& !this.isDeletedMessage
 		},
 

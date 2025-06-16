@@ -15,11 +15,12 @@
 			<div class="media-settings__preview">
 				<video v-show="showVideo"
 					ref="video"
-					:class="['preview__video', { 'preview__video--mirrored': isMirrored }]"
+					class="preview__video"
+					:class="{ 'preview__video--mirrored': isMirrored }"
 					disablePictureInPicture
 					tabindex="-1" />
 				<NcButton v-if="showVideo"
-					type="secondary"
+					variant="secondary"
 					class="media-settings__preview-mirror"
 					:title="mirrorToggleLabel"
 					:aria-label="mirrorToggleLabel"
@@ -35,7 +36,7 @@
 					<AvatarWrapper :id="userId"
 						:token="token"
 						:name="displayName"
-						:source="actorType"
+						:source="actorStore.actorType"
 						:size="AVATAR.SIZE.EXTRA_LARGE"
 						disable-menu
 						disable-tooltip />
@@ -44,7 +45,7 @@
 				<!-- Audio and video toggles -->
 				<div class="media-settings__toggles">
 					<!-- Audio toggle -->
-					<NcButton type="tertiary"
+					<NcButton variant="tertiary"
 						:title="audioButtonTitle"
 						:aria-label="audioButtonTitle"
 						:disabled="!audioPreviewAvailable"
@@ -59,7 +60,7 @@
 					</NcButton>
 
 					<!-- Video toggle -->
-					<NcButton type="tertiary"
+					<NcButton variant="tertiary"
 						:title="videoButtonTitle"
 						:aria-label="videoButtonTitle"
 						:disabled="!videoPreviewAvailable"
@@ -230,6 +231,7 @@ import { useIsInCall } from '../../composables/useIsInCall.js'
 import { AVATAR, CALL, CONFIG, PARTICIPANT, VIRTUAL_BACKGROUND } from '../../constants.ts'
 import BrowserStorage from '../../services/BrowserStorage.js'
 import { getTalkConfig } from '../../services/CapabilitiesManager.ts'
+import { useActorStore } from '../../stores/actor.ts'
 import { useGuestNameStore } from '../../stores/guestName.js'
 import { useSettingsStore } from '../../stores/settings.js'
 import { localMediaModel } from '../../utils/webrtc/index.js'
@@ -336,6 +338,7 @@ export default {
 			dialogHeaderId,
 			supportStartWithoutMedia,
 			supportDefaultBlurVirtualBackground,
+			actorStore: useActorStore(),
 		}
 	},
 
@@ -360,22 +363,18 @@ export default {
 
 	computed: {
 		displayName() {
-			return this.$store.getters.getDisplayName()
+			return this.actorStore.displayName
 		},
 
 		guestName() {
 			return this.guestNameStore.getGuestName(
 				this.$store.getters.getToken(),
-				this.$store.getters.getActorId(),
+				this.actorStore.actorId,
 			)
 		},
 
 		userId() {
-			return this.$store.getters.getUserId()
-		},
-
-		actorType() {
-			return this.$store.getters.getActorType()
+			return this.actorStore.userId
 		},
 
 		token() {

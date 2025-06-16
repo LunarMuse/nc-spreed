@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { getRequestToken } from '@nextcloud/auth'
+import { getCSPNonce } from '@nextcloud/auth'
 import { generateFilePath } from '@nextcloud/router'
 import { getSharingToken } from '@nextcloud/sharing/public'
-import { createPinia, PiniaVuePlugin } from 'pinia'
 import Vue, { reactive } from 'vue'
 import Vuex from 'vuex'
 import PublicShareSidebar from './PublicShareSidebar.vue'
 import PublicShareSidebarTrigger from './PublicShareSidebarTrigger.vue'
 import store from './store/index.js'
+import pinia from './stores/pinia.ts'
 
 import './init.js'
 // Leaflet icon patch
@@ -20,7 +20,7 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import 'leaflet-defaulticon-compatibility'
 
 // CSP config for webpack dynamic chunk loading
-__webpack_nonce__ = btoa(getRequestToken())
+__webpack_nonce__ = getCSPNonce()
 
 // Correct the root of the app for chunk loading
 // OC.linkTo matches the apps folders
@@ -31,10 +31,7 @@ __webpack_public_path__ = generateFilePath('spreed', '', 'js/')
 Vue.prototype.OC = OC
 Vue.prototype.OCA = OCA
 
-Vue.use(PiniaVuePlugin)
 Vue.use(Vuex)
-
-const pinia = createPinia()
 
 // An "isOpen" boolean should be passed to the component, but as it is a
 // primitive it would not be reactive; it needs to be wrapped in an object and

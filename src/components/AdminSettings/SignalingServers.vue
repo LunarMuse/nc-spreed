@@ -12,13 +12,13 @@
 			{{ t('spreed', 'Install the High-performance backend to ensure calls with multiple participants work seamlessly.') }}
 
 			<NcButton v-if="props.hasValidSubscription"
-				type="primary"
+				variant="primary"
 				class="additional-top-margin"
 				href="https://portal.nextcloud.com/article/Nextcloud-Talk/High-Performance-Backend/Installation-of-Nextcloud-Talk-High-Performance-Backend">
 				{{ t('spreed', 'Nextcloud portal') }} ↗
 			</NcButton>
 			<NcButton v-else
-				type="primary"
+				variant="primary"
 				class="additional-top-margin"
 				href="https://nextcloud-talk.readthedocs.io/en/latest/quick-install/">
 				{{ t('spreed', 'Quick installation guide') }} ↗
@@ -99,9 +99,6 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import SignalingServer from '../../components/AdminSettings/SignalingServer.vue'
 import { SIGNALING } from '../../constants.ts'
 
-const isCacheConfigured = loadState('spreed', 'has_cache_configured')
-const isClusteredMode = loadState('spreed', 'signaling_mode') === SIGNALING.MODE.CLUSTER_CONVERSATION
-
 const props = defineProps<{
 	hideWarning: InitialState['spreed']['signaling_servers']['hideWarning']
 	secret: InitialState['spreed']['signaling_servers']['secret']
@@ -114,6 +111,9 @@ const emit = defineEmits<{
 	(e: 'update:secret', value: InitialState['spreed']['signaling_servers']['secret']): void
 	(e: 'update:hideWarning', value: InitialState['spreed']['signaling_servers']['hideWarning']): void
 }>()
+
+const isCacheConfigured = loadState('spreed', 'has_cache_configured')
+const isClusteredMode = loadState('spreed', 'signaling_mode') === SIGNALING.MODE.CLUSTER_CONVERSATION
 
 const loading = ref(false)
 

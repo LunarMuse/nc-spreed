@@ -12,7 +12,7 @@
 		}">
 		<ConversationIcon :key="conversation.token"
 			class="conversation-icon"
-			:offline="isPeerInactive"
+			:offline="isOffline"
 			:item="conversation"
 			:size="AVATAR.SIZE.DEFAULT"
 			:disable-menu="false"
@@ -26,7 +26,7 @@
 				class="conversation-header"
 				@click="openConversationSettings">
 				<div class="conversation-header__text"
-					:class="{ 'conversation-header__text--offline': isPeerInactive }">
+					:class="{ 'conversation-header__text--offline': isOffline }">
 					<p class="title">
 						{{ conversation.displayName }}
 					</p>
@@ -36,7 +36,7 @@
 						{{ statusMessage }}
 					</p>
 					<NcPopover v-if="conversation.description"
-						:focus-trap="false"
+						no-focus-trap
 						:delay="500"
 						:boundary="boundaryElement"
 						:popper-triggers="['hover']"
@@ -68,7 +68,7 @@
 			<NcButton v-if="isInCall && isModeratorOrUser"
 				:title="participantsInCallAriaLabel"
 				:aria-label="participantsInCallAriaLabel"
-				type="tertiary"
+				variant="tertiary"
 				@click="openSidebar('participants')">
 				<template #icon>
 					<IconAccountMultiplePlus v-if="canExtendOneToOneConversation" :size="20" />
@@ -132,6 +132,7 @@ import TopBarMenu from './TopBarMenu.vue'
 import { useGetParticipants } from '../../composables/useGetParticipants.js'
 import { AVATAR, CONVERSATION } from '../../constants.ts'
 import { getTalkConfig, hasTalkFeature } from '../../services/CapabilitiesManager.ts'
+import { useActorStore } from '../../stores/actor.ts'
 import { useGroupwareStore } from '../../stores/groupware.ts'
 import { useSidebarStore } from '../../stores/sidebar.ts'
 import { getStatusMessage } from '../../utils/userStatus.ts'
@@ -187,6 +188,7 @@ export default {
 			localMediaModel,
 			groupwareStore: useGroupwareStore(),
 			sidebarStore: useSidebarStore(),
+			actorStore: useActorStore(),
 			CONVERSATION,
 		}
 	},
@@ -230,35 +232,19 @@ export default {
 		},
 
 		/**
-		 * Current actor id
+		 * Online status of the peer (second attendee) in one to one conversation.
 		 */
-		actorId() {
-			return this.$store.getters.getActorId()
-		},
-
-		/**
-		 * Online status of the peer in one to one conversation.
-		 */
-		isPeerInactive() {
-			// Only compute this in one-to-one conversations
+		isOffline() {
 			if (!this.isOneToOneConversation) {
-				return undefined
-			}
-
-			// Get the 1 to 1 peer
-			let peer
-			const participants = this.$store.getters.participantsList(this.token)
-			for (const participant of participants) {
-				if (participant.actorId !== this.actorId) {
-					peer = participant
-				}
-			}
-
-			if (peer) {
-				return !peer.sessionIds.length
-			} else {
 				return false
 			}
+
+			const peer = this.$store.getters.participantsList(this.token)
+				.find((participant) => participant.actorId !== this.actorStore.actorId)
+
+			// If second attendee is not currently in the room,
+			// or not invited yet to the room, show as offline
+			return !peer || peer.sessionIds.length === 0
 		},
 
 		participantsInCall() {
@@ -287,7 +273,7 @@ export default {
 		},
 
 		getUserId() {
-			return this.$store.getters.getUserId()
+			return this.actorStore.userId
 		},
 	},
 

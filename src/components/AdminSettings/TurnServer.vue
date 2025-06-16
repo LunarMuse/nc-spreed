@@ -49,19 +49,19 @@
 			no-wrap />
 
 		<NcButton v-show="!loading"
-			type="tertiary"
+			variant="tertiary"
 			:aria-label="testResult"
 			:disabled="!testAvailable"
 			@click="testServer">
 			<template #icon>
 				<span v-if="testing" class="icon icon-loading-small" />
-				<AlertCircle v-else-if="testingError" :fill-color="'#E9322D'" />
-				<Check v-else-if="testingSuccess" :fill-color="'#46BA61'" />
+				<AlertCircle v-else-if="testingError" fill-color="#E9322D" />
+				<Check v-else-if="testingSuccess" fill-color="#46BA61" />
 				<Pulse v-else />
 			</template>
 		</NcButton>
 		<NcButton v-show="!loading"
-			type="tertiary"
+			variant="tertiary"
 			:aria-label="t('spreed', 'Delete this server')"
 			@click="removeServer">
 			<template #icon>
